@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JavaScript Learning Module – Arrays, Async & ES6+</title>
+  <style>
+    :root {
+      --primary: #2E75B6;
+      --secondary: #1F4E79;
+      --accent: #70AD47;
+      --bg: #F4F8FC;
+      --card: #FFFFFF;
+      --code-bg: #1E1E2E;
+      --code-text: #CDD6F4;
+      --border: #D0DEF0;
+      --text: #1A1A2E;
+      --muted: #6B7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    header {
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: white; padding: 36px 40px;
+    }
+    header h1 { font-size: 2rem; letter-spacing: 0.5px; }
+    header p { margin-top: 8px; opacity: 0.85; font-size: 1rem; }
+
+    nav {
+      background: var(--secondary);
+      display: flex; gap: 4px; padding: 0 40px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: transparent; color: rgba(255,255,255,0.75);
+      border: none; padding: 12px 18px; cursor: pointer;
+      font-size: 0.9rem; border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    nav button:hover, nav button.active {
+      color: white; border-bottom-color: #70AD47;
+    }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    h2 { color: var(--secondary); font-size: 1.5rem; margin-bottom: 8px; border-left: 4px solid var(--primary); padding-left: 12px; }
+    h3 { color: var(--primary); font-size: 1.1rem; margin: 24px 0 8px; }
+    p { margin-bottom: 12px; color: #333; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    pre {
+      background: var(--code-bg); color: var(--code-text);
+      border-radius: 8px; padding: 16px; overflow-x: auto;
+      font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+      font-size: 0.88rem; line-height: 1.6; margin: 12px 0;
+    }
+    code { font-family: inherit; }
+
+    .kw  { color: #CBA6F7; }  /* keywords */
+    .fn  { color: #89DCEB; }  /* function names */
+    .str { color: #A6E3A1; }  /* strings */
+    .num { color: #FAB387; }  /* numbers */
+    .cmt { color: #6C7086; font-style: italic; }  /* comments */
+    .op  { color: #F38BA8; }  /* operators */
+
+    .run-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary); color: white;
+      border: none; border-radius: 6px; padding: 10px 20px;
+      cursor: pointer; font-size: 0.9rem; font-weight: 600;
+      transition: background 0.2s; margin-top: 10px;
+    }
+    .run-btn:hover { background: var(--secondary); }
+    .run-btn:active { transform: scale(0.98); }
+
+    .output-box {
+      background: #0F1117; color: #E5E7EB;
+      border-radius: 8px; padding: 14px 16px;
+      font-family: Consolas, monospace; font-size: 0.85rem;
+      min-height: 50px; margin-top: 12px; white-space: pre-wrap;
+      border-left: 3px solid var(--accent);
+    }
+    .output-box.empty { color: var(--muted); font-style: italic; }
+
+    .badge {
+      display: inline-block; background: var(--primary); color: white;
+      border-radius: 4px; padding: 2px 8px; font-size: 0.75rem;
+      font-weight: 600; margin-right: 6px; vertical-align: middle;
+    }
+    .badge.green { background: var(--accent); }
+    .badge.orange { background: #E67E22; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th { background: var(--primary); color: white; padding: 10px 12px; text-align: left; font-size: 0.88rem; }
+    td { border-bottom: 1px solid var(--border); padding: 9px 12px; font-size: 0.88rem; }
+    tr:hover td { background: #EEF4FB; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+
+    .tip {
+      background: #EFF8E9; border-left: 4px solid var(--accent);
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0;
+      font-size: 0.9rem; color: #2D5A1B;
+    }
+    .warn {
+      background: #FEF9EC; border-left: 4px solid #F59E0B;
+      padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0;
+      font-size: 0.9rem; color: #78350F;
+    }
+
+    /* Interactive Demo Styles */
+    .demo-input {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    input[type="text"], input[type="number"] {
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 12px; font-size: 0.9rem; width: 200px;
+    }
+    select {
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 12px; font-size: 0.9rem; background: white;
+    }
+    .result-pill {
+      display: inline-block; background: #E0F2FE; color: #0369A1;
+      border-radius: 20px; padding: 4px 14px; font-size: 0.85rem;
+      margin: 4px; font-weight: 600;
+    }
+    #pill-container { min-height: 36px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📘 JavaScript Learning Module</h1>
+  <p>Arrays &amp; Methods &nbsp;|&nbsp; Asynchronous JavaScript &nbsp;|&nbsp; ES6+ Features</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showSection('arrays', this)">🗂 Arrays &amp; Methods</button>
+  <button onclick="showSection('async', this)">⏳ Async JavaScript</button>
+  <button onclick="showSection('es6', this)">⚡ ES6+ Features</button>
+  <button onclick="showSection('playground', this)">🧪 Playground</button>
+</nav>
+
+<main>
+
+<!-- ===================== SECTION 1: ARRAYS ===================== -->
+<div id="arrays" class="section active">
+
+  <h2>🗂 Arrays &amp; Array Methods</h2>
+  <p>Arrays are ordered collections that store multiple values in a single variable. JavaScript arrays are dynamic, zero-indexed, and can hold mixed data types.</p>
+
+  <div class="card">
+    <h3>1.1 Creating Arrays</h3>
+    <pre><code><span class="cmt">// Array literal (recommended)</span>
+<span class="kw">const</span> fruits <span class="op">=</span> [<span class="str">'apple'</span>, <span class="str">'banana'</span>, <span class="str">'cherry'</span>];
+
+<span class="cmt">// Array constructor</span>
+<span class="kw">const</span> nums <span class="op">=</span> <span class="kw">new</span> <span class="fn">Array</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>);
+
+<span class="cmt">// Mixed types (allowed in JS)</span>
+<span class="kw">const</span> mixed <span class="op">=</span> [<span class="num">42</span>, <span class="str">'hello'</span>, <span class="kw">true</span>, { name: <span class="str">'Alice'</span> }, [<span class="num">1</span>, <span class="num">2</span>]];
+
+<span class="cmt">// Access by index (zero-based)</span>
+console.<span class="fn">log</span>(fruits[<span class="num">0</span>]);         <span class="cmt">// 'apple'</span>
+console.<span class="fn">log</span>(fruits.<span class="fn">at</span>(<span class="op">-</span><span class="num">1</span>));     <span class="cmt">// 'cherry' (ES2022 .at())</span>
+console.<span class="fn">log</span>(fruits.length);      <span class="cmt">// 3</span></code></pre>
+    <button class="run-btn" onclick="runDemo('arrays-create')">▶ Run</button>
+    <div id="out-arrays-create" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>1.2 Mutating Methods (modify the original array)</h3>
+    <table>
+      <tr><th>Method</th><th>What It Does</th><th>Returns</th></tr>
+      <tr><td><code>push(...items)</code></td><td>Add to end</td><td>New length</td></tr>
+      <tr><td><code>pop()</code></td><td>Remove from end</td><td>Removed element</td></tr>
+      <tr><td><code>unshift(...items)</code></td><td>Add to start</td><td>New length</td></tr>
+      <tr><td><code>shift()</code></td><td>Remove from start</td><td>Removed element</td></tr>
+      <tr><td><code>splice(start, deleteCount, ...items)</code></td><td>Remove/replace/insert at index</td><td>Removed elements</td></tr>
+      <tr><td><code>reverse()</code></td><td>Reverse in place</td><td>The array</td></tr>
+      <tr><td><code>sort(fn?)</code></td><td>Sort in place</td><td>The array</td></tr>
+      <tr><td><code>fill(value, start?, end?)</code></td><td>Fill with a static value</td><td>The array</td></tr>
+    </table>
+    <pre><code><span class="kw">const</span> arr <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>];
+arr.<span class="fn">push</span>(<span class="num">4</span>);                 <span class="cmt">// [1, 2, 3, 4]</span>
+arr.<span class="fn">unshift</span>(<span class="num">0</span>);             <span class="cmt">// [0, 1, 2, 3, 4]</span>
+arr.<span class="fn">pop</span>();                   <span class="cmt">// [0, 1, 2, 3]</span>
+arr.<span class="fn">splice</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">99</span>);       <span class="cmt">// [0, 99, 3]  (removed 1,2 and inserted 99)</span></code></pre>
+    <button class="run-btn" onclick="runDemo('arrays-mutate')">▶ Run</button>
+    <div id="out-arrays-mutate" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>1.3 Non-Mutating / Functional Methods (return new values)</h3>
+    <pre><code><span class="kw">const</span> numbers <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>];
+
+<span class="cmt">// map() — transform every element into a new array</span>
+<span class="kw">const</span> doubled <span class="op">=</span> numbers.<span class="fn">map</span>(n <span class="op">=></span> n <span class="op">*</span> <span class="num">2</span>);
+<span class="cmt">// [2, 4, 6, 8, 10, 12]</span>
+
+<span class="cmt">// filter() — keep elements matching a condition</span>
+<span class="kw">const</span> evens <span class="op">=</span> numbers.<span class="fn">filter</span>(n <span class="op">=></span> n <span class="op">%</span> <span class="num">2</span> <span class="op">===</span> <span class="num">0</span>);
+<span class="cmt">// [2, 4, 6]</span>
+
+<span class="cmt">// reduce() — collapse array to a single value</span>
+<span class="kw">const</span> sum <span class="op">=</span> numbers.<span class="fn">reduce</span>((acc, n) <span class="op">=></span> acc <span class="op">+</span> n, <span class="num">0</span>);
+<span class="cmt">// 21</span>
+
+<span class="cmt">// find() — first element matching condition (or undefined)</span>
+<span class="kw">const</span> firstBig <span class="op">=</span> numbers.<span class="fn">find</span>(n <span class="op">=></span> n <span class="op">></span> <span class="num">3</span>);
+<span class="cmt">// 4</span>
+
+<span class="cmt">// some() / every() — boolean checks</span>
+<span class="kw">const</span> hasEven <span class="op">=</span> numbers.<span class="fn">some</span>(n <span class="op">=></span> n <span class="op">%</span> <span class="num">2</span> <span class="op">===</span> <span class="num">0</span>);   <span class="cmt">// true</span>
+<span class="kw">const</span> allPos  <span class="op">=</span> numbers.<span class="fn">every</span>(n <span class="op">=></span> n <span class="op">></span> <span class="num">0</span>);          <span class="cmt">// true</span>
+
+<span class="cmt">// flat() — flatten nested arrays</span>
+[<span class="num">1</span>, [<span class="num">2</span>, [<span class="num">3</span>]]].<span class="fn">flat</span>(<span class="fn">Infinity</span>);   <span class="cmt">// [1, 2, 3]</span>
+
+<span class="cmt">// flatMap() — map then flatten (1 level)</span>
+[<span class="str">'Hello World'</span>, <span class="str">'foo bar'</span>].<span class="fn">flatMap</span>(s <span class="op">=></span> s.<span class="fn">split</span>(<span class="str">' '</span>));
+<span class="cmt">// ['Hello', 'World', 'foo', 'bar']</span>
+
+<span class="cmt">// slice() — copy a portion</span>
+numbers.<span class="fn">slice</span>(<span class="num">1</span>, <span class="num">4</span>);   <span class="cmt">// [2, 3, 4] (original unchanged)</span>
+
+<span class="cmt">// includes() — check membership</span>
+numbers.<span class="fn">includes</span>(<span class="num">3</span>);   <span class="cmt">// true</span>
+
+<span class="cmt">// indexOf() — find position</span>
+numbers.<span class="fn">indexOf</span>(<span class="num">4</span>);    <span class="cmt">// 3</span></code></pre>
+    <button class="run-btn" onclick="runDemo('arrays-functional')">▶ Run</button>
+    <div id="out-arrays-functional" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>1.4 Chaining Methods — Real World Example</h3>
+    <p>Multiple array methods can be chained together for expressive data pipelines:</p>
+    <pre><code><span class="kw">const</span> students <span class="op">=</span> [
+  { name: <span class="str">'Alice'</span>, score: <span class="num">85</span>, passed: <span class="kw">true</span>  },
+  { name: <span class="str">'Bob'</span>,   score: <span class="num">42</span>, passed: <span class="kw">false</span> },
+  { name: <span class="str">'Carol'</span>, score: <span class="num">91</span>, passed: <span class="kw">true</span>  },
+  { name: <span class="str">'Dave'</span>,  score: <span class="num">67</span>, passed: <span class="kw">true</span>  },
+  { name: <span class="str">'Eve'</span>,   score: <span class="num">55</span>, passed: <span class="kw">false</span> },
+];
+
+<span class="cmt">// Get names of passing students sorted by score (high→low)</span>
+<span class="kw">const</span> topStudents <span class="op">=</span> students
+  .<span class="fn">filter</span>(s <span class="op">=></span> s.passed)
+  .<span class="fn">sort</span>((a, b) <span class="op">=></span> b.score <span class="op">-</span> a.score)
+  .<span class="fn">map</span>(s <span class="op">=></span> <span class="str">`${s.name}: ${s.score}`</span>);
+
+<span class="cmt">// ['Carol: 91', 'Alice: 85', 'Dave: 67']</span>
+
+<span class="cmt">// Average score of all students</span>
+<span class="kw">const</span> avg <span class="op">=</span> students
+  .<span class="fn">reduce</span>((sum, s) <span class="op">=></span> sum <span class="op">+</span> s.score, <span class="num">0</span>) <span class="op">/</span> students.length;
+
+<span class="cmt">// 68</span></code></pre>
+
+    <h3 style="margin-top:20px">Interactive Array Builder</h3>
+    <div class="demo-input">
+      <input type="number" id="arr-input" placeholder="Enter a number" />
+      <select id="arr-method">
+        <option value="map">map (×2)</option>
+        <option value="filter">filter (>3)</option>
+        <option value="reduce">reduce (sum)</option>
+        <option value="sort">sort (asc)</option>
+      </select>
+      <button class="run-btn" onclick="addToArray()">➕ Add &amp; Apply</button>
+      <button class="run-btn" style="background:#E74C3C" onclick="clearArray()">🗑 Clear</button>
+    </div>
+    <div id="pill-container"></div>
+    <div id="arr-result" class="output-box empty">Add numbers and apply a method…</div>
+  </div>
+
+</div><!-- /arrays -->
+
+<!-- ===================== SECTION 2: ASYNC ===================== -->
+<div id="async" class="section">
+
+  <h2>⏳ Asynchronous JavaScript</h2>
+  <p>JavaScript is single-threaded, but asynchronous programming lets it handle long operations (network requests, file I/O, timers) without blocking the UI. There are three main patterns.</p>
+
+  <div class="card">
+    <h3>2.1 The JavaScript Event Loop</h3>
+    <p>The event loop is what makes async JS work. It continuously checks the <strong>Call Stack</strong> and <strong>Callback Queue</strong>, moving callbacks onto the stack when it's empty.</p>
+    <pre><code><span class="cmt">// Synchronous — blocks the stack until done</span>
+console.<span class="fn">log</span>(<span class="str">'1 - Start'</span>);
+console.<span class="fn">log</span>(<span class="str">'2 - Middle'</span>);
+console.<span class="fn">log</span>(<span class="str">'3 - End'</span>);   <span class="cmt">// Output: 1, 2, 3 (in order)</span>
+
+<span class="cmt">// Asynchronous — setTimeout schedules callback for LATER</span>
+console.<span class="fn">log</span>(<span class="str">'A - Start'</span>);
+<span class="fn">setTimeout</span>(() <span class="op">=></span> console.<span class="fn">log</span>(<span class="str">'B - Timer fires!'</span>), <span class="num">0</span>);
+console.<span class="fn">log</span>(<span class="str">'C - End'</span>);
+<span class="cmt">// Output: A, C, B  ← B runs AFTER current stack clears</span></code></pre>
+    <button class="run-btn" onclick="runDemo('event-loop')">▶ Run</button>
+    <div id="out-event-loop" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>2.2 Callbacks — The Original Async Pattern</h3>
+    <p>A callback is a function passed as an argument to another function, to be called later when an async operation completes.</p>
+    <pre><code><span class="cmt">// Simulating an async operation with a callback</span>
+<span class="kw">function</span> <span class="fn">fetchUser</span>(userId, callback) {
+  console.<span class="fn">log</span>(<span class="str">`Fetching user ${userId}...`</span>);
+  <span class="fn">setTimeout</span>(() <span class="op">=></span> {
+    <span class="kw">const</span> user <span class="op">=</span> { id: userId, name: <span class="str">'Alice'</span>, role: <span class="str">'Admin'</span> };
+    <span class="fn">callback</span>(<span class="kw">null</span>, user);   <span class="cmt">// null = no error</span>
+  }, <span class="num">800</span>);
+}
+
+<span class="fn">fetchUser</span>(<span class="num">1</span>, (err, user) <span class="op">=></span> {
+  <span class="kw">if</span> (err) { console.<span class="fn">error</span>(err); <span class="kw">return</span>; }
+  console.<span class="fn">log</span>(<span class="str">`Got user: ${user.name} (${user.role})`</span>);
+});
+
+<span class="cmt">// ⚠️ Callback Hell — deeply nested callbacks become unreadable</span>
+<span class="fn">getUser</span>(<span class="num">1</span>, (err, user) <span class="op">=></span> {
+  <span class="fn">getPosts</span>(user.id, (err, posts) <span class="op">=></span> {
+    <span class="fn">getComments</span>(posts[<span class="num">0</span>].id, (err, comments) <span class="op">=></span> {
+      <span class="cmt">// Keep going... this is "Callback Hell" 🔥</span>
+    });
+  });
+});</code></pre>
+    <button class="run-btn" onclick="runDemo('callbacks')">▶ Run (simulated)</button>
+    <div id="out-callbacks" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>2.3 Promises — Solving Callback Hell</h3>
+    <p>A Promise is an object representing the eventual completion or failure of an async operation. It can be in one of three states: <strong>pending</strong>, <strong>fulfilled</strong>, or <strong>rejected</strong>.</p>
+    <pre><code><span class="cmt">// Creating a Promise</span>
+<span class="kw">function</span> <span class="fn">fetchUser</span>(userId) {
+  <span class="kw">return new</span> <span class="fn">Promise</span>((resolve, reject) <span class="op">=></span> {
+    <span class="fn">setTimeout</span>(() <span class="op">=></span> {
+      <span class="kw">if</span> (userId <span class="op">></span> <span class="num">0</span>) {
+        resolve({ id: userId, name: <span class="str">'Alice'</span> }); <span class="cmt">// success</span>
+      } <span class="kw">else</span> {
+        reject(<span class="kw">new</span> <span class="fn">Error</span>(<span class="str">'Invalid user ID'</span>));     <span class="cmt">// failure</span>
+      }
+    }, <span class="num">600</span>);
+  });
+}
+
+<span class="cmt">// Consuming a Promise with .then() / .catch() / .finally()</span>
+<span class="fn">fetchUser</span>(<span class="num">1</span>)
+  .<span class="fn">then</span>(user <span class="op">=></span> {
+    console.<span class="fn">log</span>(<span class="str">`User: ${user.name}`</span>);
+    <span class="kw">return</span> <span class="fn">fetchUser</span>(<span class="num">2</span>);  <span class="cmt">// chain another promise!</span>
+  })
+  .<span class="fn">then</span>(user2 <span class="op">=></span> console.<span class="fn">log</span>(<span class="str">`User 2: ${user2.name}`</span>))
+  .<span class="fn">catch</span>(err  <span class="op">=></span> console.<span class="fn">error</span>(<span class="str">`Error: ${err.message}`</span>))
+  .<span class="fn">finally</span>(() <span class="op">=></span> console.<span class="fn">log</span>(<span class="str">'Done!'</span>));
+
+<span class="cmt">// Promise.all — run multiple promises IN PARALLEL</span>
+<span class="fn">Promise</span>.<span class="fn">all</span>([<span class="fn">fetchUser</span>(<span class="num">1</span>), <span class="fn">fetchUser</span>(<span class="num">2</span>)])
+  .<span class="fn">then</span>(([u1, u2]) <span class="op">=></span> console.<span class="fn">log</span>(u1.name, u2.name));
+
+<span class="cmt">// Promise.allSettled — run all, get all results (even failed)</span>
+<span class="fn">Promise</span>.<span class="fn">allSettled</span>([<span class="fn">fetchUser</span>(<span class="num">1</span>), <span class="fn">fetchUser</span>(<span class="op">-</span><span class="num">1</span>)])
+  .<span class="fn">then</span>(results <span class="op">=></span> results.<span class="fn">forEach</span>(r <span class="op">=></span> console.<span class="fn">log</span>(r.status)));</code></pre>
+    <button class="run-btn" onclick="runDemo('promises')">▶ Run (simulated)</button>
+    <div id="out-promises" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>2.4 Async / Await — The Modern Way</h3>
+    <p><code>async/await</code> is syntactic sugar over Promises, making async code look and read like synchronous code — much easier to follow.</p>
+    <pre><code><span class="cmt">// async keyword marks a function as returning a Promise</span>
+<span class="kw">async function</span> <span class="fn">getUserData</span>(userId) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> user  <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchUser</span>(userId);    <span class="cmt">// wait for promise</span>
+    <span class="kw">const</span> posts <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchPosts</span>(user.id); <span class="cmt">// wait for next</span>
+    console.<span class="fn">log</span>(<span class="str">`${user.name} has ${posts.length} posts`</span>);
+    <span class="kw">return</span> { user, posts };
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">`Failed: ${err.message}`</span>);
+  } <span class="kw">finally</span> {
+    console.<span class="fn">log</span>(<span class="str">'Request finished'</span>);
+  }
+}
+
+<span class="fn">getUserData</span>(<span class="num">1</span>);  <span class="cmt">// call like normal function</span>
+
+<span class="cmt">// Parallel execution with async/await</span>
+<span class="kw">async function</span> <span class="fn">loadAll</span>() {
+  <span class="cmt">// ❌ Sequential (slower — each waits for previous)</span>
+  <span class="kw">const</span> u1 <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchUser</span>(<span class="num">1</span>);
+  <span class="kw">const</span> u2 <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetchUser</span>(<span class="num">2</span>);
+
+  <span class="cmt">// ✅ Parallel (faster — both fire at once)</span>
+  <span class="kw">const</span> [u3, u4] <span class="op">=</span> <span class="kw">await</span> Promise.<span class="fn">all</span>([<span class="fn">fetchUser</span>(<span class="num">3</span>), <span class="fn">fetchUser</span>(<span class="num">4</span>)]);
+}
+
+<span class="cmt">// Real fetch() API call with async/await</span>
+<span class="kw">async function</span> <span class="fn">getJoke</span>() {
+  <span class="kw">const</span> response <span class="op">=</span> <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://official-joke-api.appspot.com/random_joke'</span>);
+  <span class="kw">const</span> joke    <span class="op">=</span> <span class="kw">await</span> response.<span class="fn">json</span>();
+  console.<span class="fn">log</span>(<span class="str">`${joke.setup} ... ${joke.punchline}`</span>);
+}</code></pre>
+    <button class="run-btn" onclick="runDemo('async-await')">▶ Run (simulated)</button>
+    <div id="out-async-await" class="output-box empty">Output will appear here…</div>
+
+    <div class="tip">
+      💡 <strong>Rule of thumb:</strong> Always use <code>try/catch</code> inside <code>async</code> functions to handle rejected promises, just like you'd use <code>.catch()</code> with promise chains.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2.5 Pattern Comparison</h3>
+    <table>
+      <tr><th>Pattern</th><th>Syntax</th><th>Pros</th><th>Cons</th></tr>
+      <tr><td><span class="badge orange">Callback</span></td><td><code>fn(data, cb)</code></td><td>Simple, no setup</td><td>Callback hell, hard to chain</td></tr>
+      <tr><td><span class="badge">Promise</span></td><td><code>.then().catch()</code></td><td>Chainable, composable</td><td>Verbose for complex flows</td></tr>
+      <tr><td><span class="badge green">Async/Await</span></td><td><code>await fn()</code></td><td>Readable, synchronous-looking</td><td>Requires async wrapper</td></tr>
+    </table>
+  </div>
+
+</div><!-- /async -->
+
+<!-- ===================== SECTION 3: ES6+ ===================== -->
+<div id="es6" class="section">
+
+  <h2>⚡ Modern JavaScript: ES6+ Features</h2>
+  <p>ES6 (ECMAScript 2015) and later versions added powerful new syntax and features that make JavaScript more expressive, concise, and easier to work with.</p>
+
+  <div class="grid2">
+
+    <div class="card">
+      <h3>3.1 let &amp; const</h3>
+      <pre><code><span class="cmt">// var: function-scoped, hoisted, redeclarable</span>
+<span class="kw">var</span> x <span class="op">=</span> <span class="num">1</span>;
+<span class="kw">var</span> x <span class="op">=</span> <span class="num">2</span>; <span class="cmt">// OK — no error!</span>
+
+<span class="cmt">// let: block-scoped, not redeclarable</span>
+<span class="kw">let</span> y <span class="op">=</span> <span class="num">1</span>;
+y <span class="op">=</span> <span class="num">2</span>;     <span class="cmt">// OK — reassign allowed</span>
+
+<span class="cmt">// const: block-scoped, read-only reference</span>
+<span class="kw">const</span> PI <span class="op">=</span> <span class="num">3.14</span>;
+<span class="cmt">// PI = 4;  ← Error!</span>
+
+<span class="cmt">// const objects: reference locked, contents mutable</span>
+<span class="kw">const</span> obj <span class="op">=</span> { a: <span class="num">1</span> };
+obj.a <span class="op">=</span> <span class="num">99</span>;   <span class="cmt">// ✅ allowed</span>
+<span class="cmt">// obj = {}; ← Error!</span></code></pre>
+      <button class="run-btn" onclick="runDemo('let-const')">▶ Run</button>
+      <div id="out-let-const" class="output-box empty">…</div>
+    </div>
+
+    <div class="card">
+      <h3>3.2 Arrow Functions</h3>
+      <pre><code><span class="cmt">// Traditional function</span>
+<span class="kw">function</span> <span class="fn">add</span>(a, b) { <span class="kw">return</span> a <span class="op">+</span> b; }
+
+<span class="cmt">// Arrow function (implicit return)</span>
+<span class="kw">const</span> add <span class="op">=</span> (a, b) <span class="op">=></span> a <span class="op">+</span> b;
+
+<span class="cmt">// No params</span>
+<span class="kw">const</span> greet <span class="op">=</span> () <span class="op">=></span> <span class="str">'Hello!'</span>;
+
+<span class="cmt">// Single param (parens optional)</span>
+<span class="kw">const</span> double <span class="op">=</span> n <span class="op">=></span> n <span class="op">*</span> <span class="num">2</span>;
+
+<span class="cmt">// Multi-line body</span>
+<span class="kw">const</span> square <span class="op">=</span> n <span class="op">=></span> {
+  <span class="kw">const</span> result <span class="op">=</span> n <span class="op">*</span> n;
+  <span class="kw">return</span> result;
+};
+
+<span class="cmt">// Arrow functions don't have own 'this'</span>
+<span class="kw">const</span> timer <span class="op">=</span> {
+  count: <span class="num">0</span>,
+  start() {
+    <span class="fn">setInterval</span>(() <span class="op">=></span> {
+      this.count<span class="op">++</span>;   <span class="cmt">// 'this' = timer object ✅</span>
+    }, <span class="num">1000</span>);
+  }
+};</code></pre>
+      <button class="run-btn" onclick="runDemo('arrow-fn')">▶ Run</button>
+      <div id="out-arrow-fn" class="output-box empty">…</div>
+    </div>
+
+    <div class="card">
+      <h3>3.3 Template Literals</h3>
+      <pre><code><span class="kw">const</span> name  <span class="op">=</span> <span class="str">'Alice'</span>;
+<span class="kw">const</span> score <span class="op">=</span> <span class="num">95</span>;
+
+<span class="cmt">// Old way — string concatenation</span>
+<span class="str">'Hello, '</span> <span class="op">+</span> name <span class="op">+</span> <span class="str">'! Score: '</span> <span class="op">+</span> score;
+
+<span class="cmt">// Template literal — backtick + ${expression}</span>
+<span class="str">`Hello, ${name}! Score: ${score}`</span>;
+
+<span class="cmt">// Any JS expression inside ${}</span>
+<span class="str">`${name.toUpperCase()} scored ${score >= 90 ? 'A' : 'B'}`</span>;
+
+<span class="cmt">// Multi-line strings (no \n needed!)</span>
+<span class="kw">const</span> html <span class="op">=</span> <span class="str">`
+  &lt;div class="card"&gt;
+    &lt;h2&gt;${name}&lt;/h2&gt;
+    &lt;p&gt;Score: ${score}&lt;/p&gt;
+  &lt;/div&gt;
+`</span>;
+
+<span class="cmt">// Tagged templates (advanced)</span>
+<span class="kw">function</span> <span class="fn">highlight</span>(strings, ...vals) {
+  <span class="kw">return</span> strings.<span class="fn">reduce</span>((acc, str, i) <span class="op">=></span>
+    acc <span class="op">+</span> str <span class="op">+</span> (vals[i] ? <span class="str">`&lt;b&gt;${vals[i]}&lt;/b&gt;`</span> : <span class="str">''</span>), <span class="str">''</span>);
+}
+<span class="fn">highlight</span><span class="str">`Name: ${name}, Score: ${score}`</span>;
+<span class="cmt">// "Name: &lt;b&gt;Alice&lt;/b&gt;, Score: &lt;b&gt;95&lt;/b&gt;"</span></code></pre>
+      <button class="run-btn" onclick="runDemo('template-literals')">▶ Run</button>
+      <div id="out-template-literals" class="output-box empty">…</div>
+    </div>
+
+    <div class="card">
+      <h3>3.4 Destructuring</h3>
+      <pre><code><span class="cmt">// Array destructuring</span>
+<span class="kw">const</span> [first, second, ...rest] <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>];
+<span class="cmt">// first=1, second=2, rest=[3,4,5]</span>
+
+<span class="cmt">// Swap variables elegantly</span>
+<span class="kw">let</span> a <span class="op">=</span> <span class="num">1</span>, b <span class="op">=</span> <span class="num">2</span>;
+[a, b] <span class="op">=</span> [b, a];   <span class="cmt">// a=2, b=1</span>
+
+<span class="cmt">// Object destructuring</span>
+<span class="kw">const</span> user <span class="op">=</span> { name: <span class="str">'Bob'</span>, age: <span class="num">28</span>, city: <span class="str">'Chennai'</span> };
+<span class="kw">const</span> { name, age } <span class="op">=</span> user;
+
+<span class="cmt">// Rename while destructuring</span>
+<span class="kw">const</span> { name: userName, city: location <span class="op">=</span> <span class="str">'Unknown'</span> } <span class="op">=</span> user;
+
+<span class="cmt">// In function parameters</span>
+<span class="kw">function</span> <span class="fn">greet</span>({ name, age }) {
+  <span class="kw">return</span> <span class="str">`${name} is ${age} years old`</span>;
+}
+<span class="fn">greet</span>(user);   <span class="cmt">// 'Bob is 28 years old'</span>
+
+<span class="cmt">// Nested destructuring</span>
+<span class="kw">const</span> { address: { city: hometown } } <span class="op">=</span>
+  { address: { city: <span class="str">'Chennai'</span> } };</code></pre>
+      <button class="run-btn" onclick="runDemo('destructuring')">▶ Run</button>
+      <div id="out-destructuring" class="output-box empty">…</div>
+    </div>
+
+    <div class="card">
+      <h3>3.5 Spread &amp; Rest Operators</h3>
+      <pre><code><span class="cmt">// ——— SPREAD (...) — expands an iterable ———</span>
+
+<span class="cmt">// Copy an array (shallow)</span>
+<span class="kw">const</span> a <span class="op">=</span> [<span class="num">1</span>, <span class="num">2</span>], b <span class="op">=</span> [...a, <span class="num">3</span>, <span class="num">4</span>];   <span class="cmt">// [1,2,3,4]</span>
+
+<span class="cmt">// Merge arrays</span>
+<span class="kw">const</span> merged <span class="op">=</span> [...[<span class="num">1</span>, <span class="num">2</span>], ...[<span class="num">3</span>, <span class="num">4</span>]];  <span class="cmt">// [1,2,3,4]</span>
+
+<span class="cmt">// Spread into function args</span>
+Math.<span class="fn">max</span>(...[<span class="num">5</span>, <span class="num">12</span>, <span class="num">3</span>]);   <span class="cmt">// 12</span>
+
+<span class="cmt">// Copy/merge objects</span>
+<span class="kw">const</span> base    <span class="op">=</span> { a: <span class="num">1</span>, b: <span class="num">2</span> };
+<span class="kw">const</span> updated <span class="op">=</span> { ...base, b: <span class="num">99</span>, c: <span class="num">3</span> };
+<span class="cmt">// { a:1, b:99, c:3 }  — later keys win</span>
+
+<span class="cmt">// ——— REST (...) — collects remaining items ———</span>
+
+<span class="kw">function</span> <span class="fn">sum</span>(<span class="op">...</span>nums) {
+  <span class="kw">return</span> nums.<span class="fn">reduce</span>((acc, n) <span class="op">=></span> acc <span class="op">+</span> n, <span class="num">0</span>);
+}
+<span class="fn">sum</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>);   <span class="cmt">// 10</span>
+
+<span class="kw">const</span> [head, ...tail] <span class="op">=</span> [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>];
+<span class="cmt">// head=10, tail=[20,30]</span></code></pre>
+      <button class="run-btn" onclick="runDemo('spread-rest')">▶ Run</button>
+      <div id="out-spread-rest" class="output-box empty">…</div>
+    </div>
+
+    <div class="card">
+      <h3>3.6 Modules (import / export)</h3>
+      <pre><code><span class="cmt">// ── math.js ──────────────────────────────</span>
+
+<span class="cmt">// Named exports — export multiple things</span>
+<span class="kw">export const</span> PI <span class="op">=</span> <span class="num">3.14159</span>;
+
+<span class="kw">export function</span> <span class="fn">add</span>(a, b)    { <span class="kw">return</span> a <span class="op">+</span> b; }
+<span class="kw">export function</span> <span class="fn">multiply</span>(a, b) { <span class="kw">return</span> a <span class="op">*</span> b; }
+
+<span class="cmt">// Default export — one per file</span>
+<span class="kw">export default function</span> <span class="fn">square</span>(n) { <span class="kw">return</span> n <span class="op">*</span> n; }
+
+
+<span class="cmt">// ── app.js ────────────────────────────────</span>
+
+<span class="cmt">// Import default + named in one statement</span>
+<span class="kw">import</span> square, { PI, add, multiply } <span class="kw">from</span> <span class="str">'./math.js'</span>;
+
+<span class="cmt">// Import and rename</span>
+<span class="kw">import</span> { add <span class="kw">as</span> sum } <span class="kw">from</span> <span class="str">'./math.js'</span>;
+
+<span class="cmt">// Import entire module as namespace</span>
+<span class="kw">import</span> * <span class="kw">as</span> Math <span class="kw">from</span> <span class="str">'./math.js'</span>;
+Math.<span class="fn">add</span>(<span class="num">2</span>, <span class="num">3</span>);
+
+<span class="cmt">// Dynamic import (lazy load)</span>
+<span class="kw">const</span> { add: addFn } <span class="op">=</span> <span class="kw">await</span> <span class="kw">import</span>(<span class="str">'./math.js'</span>);
+
+<span class="cmt">// In HTML:</span>
+<span class="cmt">// &lt;script type="module" src="app.js"&gt;&lt;/script&gt;</span></code></pre>
+      <div class="tip">💡 Modules are scoped by default — variables don't leak to global scope. Always use <code>type="module"</code> on your script tag.</div>
+    </div>
+
+  </div><!-- /grid2 -->
+
+  <div class="card">
+    <h3>3.7 Other Key ES6+ Features</h3>
+    <pre><code><span class="cmt">// ── Optional Chaining (?.) ─────────────────────────────────</span>
+<span class="kw">const</span> user <span class="op">=</span> { profile: { name: <span class="str">'Alice'</span> } };
+user?.profile?.name;        <span class="cmt">// 'Alice'</span>
+user?.address?.city;        <span class="cmt">// undefined (no error!)</span>
+user?.greet?.();            <span class="cmt">// undefined if greet doesn't exist</span>
+
+<span class="cmt">// ── Nullish Coalescing (??) ────────────────────────────────</span>
+<span class="kw">const</span> count <span class="op">=</span> <span class="num">0</span>;
+count <span class="op">||</span> <span class="num">10</span>;    <span class="cmt">// 10 (0 is falsy!)</span>
+count ?? <span class="num">10</span>;    <span class="cmt">// 0  (?? only triggers on null/undefined)</span>
+
+<span class="cmt">// ── Shorthand Object Properties ────────────────────────────</span>
+<span class="kw">const</span> name <span class="op">=</span> <span class="str">'Alice'</span>, age <span class="op">=</span> <span class="num">30</span>;
+<span class="kw">const</span> person <span class="op">=</span> { name, age };  <span class="cmt">// { name: 'Alice', age: 30 }</span>
+
+<span class="cmt">// ── Computed Property Names ────────────────────────────────</span>
+<span class="kw">const</span> key <span class="op">=</span> <span class="str">'score'</span>;
+<span class="kw">const</span> obj  <span class="op">=</span> { [key]: <span class="num">95</span> };   <span class="cmt">// { score: 95 }</span>
+
+<span class="cmt">// ── Logical Assignment Operators (ES2021) ──────────────────</span>
+<span class="kw">let</span> a <span class="op">=</span> <span class="kw">null</span>;
+a <span class="op">??=</span> <span class="str">'default'</span>;   <span class="cmt">// assigns 'default' if a is null/undefined</span>
+
+<span class="kw">let</span> b <span class="op">=</span> <span class="kw">false</span>;
+b <span class="op">||=</span> <span class="str">'fallback'</span>; <span class="cmt">// assigns 'fallback' if b is falsy</span>
+
+<span class="cmt">// ── Structured Clone (ES2022) ──────────────────────────────</span>
+<span class="kw">const</span> deep <span class="op">=</span> structuredClone({ nested: { value: <span class="num">42</span> } });
+<span class="cmt">// True deep copy — unlike spread which is shallow</span></code></pre>
+    <button class="run-btn" onclick="runDemo('es6-misc')">▶ Run</button>
+    <div id="out-es6-misc" class="output-box empty">Output will appear here…</div>
+  </div>
+
+  <div class="card">
+    <h3>3.8 ES6+ Feature Timeline</h3>
+    <table>
+      <tr><th>Year</th><th>Version</th><th>Key Features</th></tr>
+      <tr><td>2015</td><td>ES6</td><td>let/const, arrow functions, classes, template literals, destructuring, spread/rest, Promise, modules, Map/Set</td></tr>
+      <tr><td>2016</td><td>ES7</td><td>Array.includes(), Exponentiation operator (**)</td></tr>
+      <tr><td>2017</td><td>ES8</td><td>async/await, Object.entries/values, String padding</td></tr>
+      <tr><td>2018</td><td>ES9</td><td>Object spread/rest, Promise.finally(), for-await-of</td></tr>
+      <tr><td>2019</td><td>ES10</td><td>Array.flat/flatMap, Object.fromEntries, optional catch binding</td></tr>
+      <tr><td>2020</td><td>ES11</td><td>Optional chaining (?.), Nullish coalescing (??), BigInt, Promise.allSettled</td></tr>
+      <tr><td>2021</td><td>ES12</td><td>Logical assignment (??=, ||=, &&=), Promise.any, String.replaceAll</td></tr>
+      <tr><td>2022</td><td>ES13</td><td>Array.at(), structuredClone, class fields, Object.hasOwn</td></tr>
+      <tr><td>2023</td><td>ES14</td><td>Array.toSorted/toReversed/with (non-mutating), findLast</td></tr>
+    </table>
+  </div>
+
+</div><!-- /es6 -->
+
+<!-- ===================== SECTION 4: PLAYGROUND ===================== -->
+<div id="playground" class="section">
+  <h2>🧪 Live Code Playground</h2>
+  <p>Write any JavaScript below and run it. The output goes to the console panel.</p>
+
+  <div class="card">
+    <textarea id="playground-code" style="width:100%;height:320px;font-family:Consolas,monospace;font-size:0.88rem;background:#1E1E2E;color:#CDD6F4;border:1px solid #444;border-radius:8px;padding:16px;resize:vertical;line-height:1.6">// Try anything! Examples:
+
+// --- Array Methods ---
+const nums = [3, 1, 4, 1, 5, 9, 2, 6];
+const result = nums
+  .filter(n => n > 3)
+  .map(n => n * 2)
+  .sort((a, b) => a - b);
+console.log('Filtered & doubled:', JSON.stringify(result));
+
+// --- Async / Await (simulated) ---
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function run() {
+  console.log('Starting async task...');
+  await delay(500);
+  console.log('Done after 500ms!');
+}
+run();
+
+// --- ES6 Features ---
+const users = [{name:'Alice',score:90},{name:'Bob',score:75}];
+const [top, ...rest] = [...users].sort((a,b) => b.score - a.score);
+console.log(`Top student: ${top.name} (${top.score})`);
+const summary = users.reduce((acc, {name, score}) => ({...acc, [name]: score}), {});
+console.log('Score map:', JSON.stringify(summary));</textarea>
+    <br/>
+    <button class="run-btn" onclick="runPlayground()">▶ Run Code</button>
+    <button class="run-btn" style="background:#6B7280;margin-left:8px" onclick="clearPlayground()">🗑 Clear Output</button>
+    <div id="playground-output" class="output-box" style="max-height:300px;overflow-y:auto;margin-top:12px">Output will appear here…</div>
+  </div>
+</div><!-- /playground -->
+
+</main>
+
+<script>
+// ─── Navigation ─────────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ─── Demo runner ─────────────────────────────────────────────────
+function output(id, lines) {
+  const el = document.getElementById('out-' + id);
+  el.classList.remove('empty');
+  el.textContent = lines.join('\n');
+}
+
+function runDemo(id) {
+  const log = [];
+  const fakelog = (...args) => log.push(args.map(a =>
+    typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
+
+  switch (id) {
+    case 'arrays-create': {
+      const fruits = ['apple', 'banana', 'cherry'];
+      const nums = new Array(1, 2, 3);
+      const mixed = [42, 'hello', true, { name: 'Alice' }, [1, 2]];
+      fakelog('fruits[0]:', fruits[0]);
+      fakelog('fruits.at(-1):', fruits.at(-1));
+      fakelog('fruits.length:', fruits.length);
+      fakelog('mixed:', JSON.stringify(mixed));
+      break;
+    }
+    case 'arrays-mutate': {
+      const arr = [1, 2, 3];
+      fakelog('Initial:', JSON.stringify(arr));
+      arr.push(4);      fakelog('After push(4):', JSON.stringify(arr));
+      arr.unshift(0);   fakelog('After unshift(0):', JSON.stringify(arr));
+      arr.pop();        fakelog('After pop():', JSON.stringify(arr));
+      arr.splice(1, 2, 99); fakelog('After splice(1,2,99):', JSON.stringify(arr));
+      break;
+    }
+    case 'arrays-functional': {
+      const numbers = [1, 2, 3, 4, 5, 6];
+      fakelog('numbers:', JSON.stringify(numbers));
+      fakelog('map(×2):', JSON.stringify(numbers.map(n => n * 2)));
+      fakelog('filter(even):', JSON.stringify(numbers.filter(n => n % 2 === 0)));
+      fakelog('reduce(sum):', numbers.reduce((a, n) => a + n, 0));
+      fakelog('find(>3):', numbers.find(n => n > 3));
+      fakelog('some(even):', numbers.some(n => n % 2 === 0));
+      fakelog('every(>0):', numbers.every(n => n > 0));
+      fakelog('flat:', JSON.stringify([1, [2, [3]]].flat(Infinity)));
+      fakelog('slice(1,4):', JSON.stringify(numbers.slice(1, 4)));
+      fakelog('includes(3):', numbers.includes(3));
+      fakelog('indexOf(4):', numbers.indexOf(4));
+      break;
+    }
+    case 'event-loop': {
+      fakelog('A - Start');
+      // Can't do real setTimeout output, so we simulate:
+      fakelog('C - End');
+      fakelog('B - Timer fires!  ← runs AFTER stack clears (even with 0ms delay)');
+      fakelog('');
+      fakelog('👆 "C" before "B" shows the Event Loop in action.');
+      break;
+    }
+    case 'callbacks': {
+      fakelog('Fetching user 1...');
+      fakelog('[~800ms simulated delay]');
+      fakelog('Got user: Alice (Admin)');
+      fakelog('');
+      fakelog('⚠️  Callback Hell → deeply nested = unreadable code.');
+      fakelog('Solution: Promises or async/await');
+      break;
+    }
+    case 'promises': {
+      fakelog('Promise created — state: pending');
+      fakelog('[~600ms simulated delay]');
+      fakelog('.then() → User: Alice');
+      fakelog('[another ~600ms delay for chained fetch]');
+      fakelog('.then() → User 2: Alice');
+      fakelog('.finally() → Done!');
+      fakelog('');
+      fakelog('Promise.all([p1, p2]) → runs BOTH in parallel → [Alice, Alice]');
+      fakelog('Promise.allSettled → [fulfilled, rejected]');
+      break;
+    }
+    case 'async-await': {
+      fakelog('async getUserData(1) called');
+      fakelog('[awaiting fetchUser...]');
+      fakelog('User resolved: Alice');
+      fakelog('[awaiting fetchPosts...]');
+      fakelog('Alice has 5 posts');
+      fakelog('finally → Request finished');
+      fakelog('');
+      fakelog('Sequential await: ~1200ms total');
+      fakelog('Promise.all await: ~600ms total  ← much faster!');
+      break;
+    }
+    case 'let-const': {
+      var x = 1; var x = 2;
+      fakelog('var x (redeclared):', x);
+      let y = 1; y = 2;
+      fakelog('let y (reassigned):', y);
+      const obj = { a: 1 };
+      obj.a = 99;
+      fakelog('const obj.a mutated:', JSON.stringify(obj));
+      fakelog('');
+      fakelog('Prefer: const > let > var');
+      break;
+    }
+    case 'arrow-fn': {
+      const add = (a, b) => a + b;
+      const greet = () => 'Hello!';
+      const double = n => n * 2;
+      const square = n => { const r = n * n; return r; };
+      fakelog('add(3,4):', add(3, 4));
+      fakelog('greet():', greet());
+      fakelog('double(7):', double(7));
+      fakelog('square(9):', square(9));
+      fakelog('');
+      fakelog('Arrow functions have no own "this" — great for callbacks!');
+      break;
+    }
+    case 'template-literals': {
+      const name = 'Alice', score = 95;
+      fakelog('Basic:', `Hello, ${name}! Score: ${score}`);
+      fakelog('Expression:', `${name.toUpperCase()} scored ${score >= 90 ? 'A' : 'B'}`);
+      fakelog('Calc in template:', `10 × 10 = ${10 * 10}`);
+      const multi = `Line 1\n  Line 2\n  Line 3`;
+      fakelog('Multi-line:\n' + multi);
+      break;
+    }
+    case 'destructuring': {
+      const [first, second, ...rest] = [1, 2, 3, 4, 5];
+      fakelog('Array destruct → first:', first, 'second:', second, 'rest:', JSON.stringify(rest));
+      let a = 1, b = 2;
+      [a, b] = [b, a];
+      fakelog('Swap → a:', a, 'b:', b);
+      const user = { name: 'Bob', age: 28, city: 'Chennai' };
+      const { name, age } = user;
+      fakelog('Object destruct → name:', name, 'age:', age);
+      const { name: userName, city: location = 'Unknown' } = user;
+      fakelog('Renamed → userName:', userName, 'location:', location);
+      break;
+    }
+    case 'spread-rest': {
+      const a = [1, 2];
+      const b = [...a, 3, 4];
+      fakelog('Spread copy:', JSON.stringify(b));
+      fakelog('Math.max spread:', Math.max(...[5, 12, 3]));
+      const base = { x: 1, y: 2 };
+      const updated = { ...base, y: 99, z: 3 };
+      fakelog('Object spread:', JSON.stringify(updated));
+      const sum = (...nums) => nums.reduce((acc, n) => acc + n, 0);
+      fakelog('Rest param sum(1,2,3,4):', sum(1, 2, 3, 4));
+      const [head, ...tail] = [10, 20, 30];
+      fakelog('Rest in destruct → head:', head, 'tail:', JSON.stringify(tail));
+      break;
+    }
+    case 'es6-misc': {
+      const user = { profile: { name: 'Alice' } };
+      fakelog('Optional chain user?.profile?.name:', user?.profile?.name);
+      fakelog('Optional chain user?.address?.city:', user?.address?.city);
+      const count = 0;
+      fakelog('0 || 10:', count || 10, '← 0 is falsy, OR gives 10');
+      fakelog('0 ?? 10:', count ?? 10, '← ?? only triggers on null/undefined, gives 0');
+      const name = 'Alice', age = 30;
+      fakelog('Shorthand:', JSON.stringify({ name, age }));
+      const key = 'score';
+      fakelog('Computed key:', JSON.stringify({ [key]: 95 }));
+      const deep = structuredClone({ nested: { value: 42 } });
+      deep.nested.value = 999;
+      fakelog('structuredClone deep copy (original unchanged):', 42, 'clone:', 999);
+      break;
+    }
+  }
+  output(id, log);
+}
+
+// ─── Interactive Array Demo ───────────────────────────────────────
+let interactiveArr = [];
+function addToArray() {
+  const val = parseFloat(document.getElementById('arr-input').value);
+  if (isNaN(val)) return;
+  interactiveArr.push(val);
+  document.getElementById('arr-input').value = '';
+  applyMethod();
+  renderPills();
+}
+function renderPills() {
+  document.getElementById('pill-container').innerHTML =
+    interactiveArr.map(n => `<span class="result-pill">${n}</span>`).join('');
+}
+function clearArray() {
+  interactiveArr = [];
+  renderPills();
+  const r = document.getElementById('arr-result');
+  r.textContent = 'Array cleared.';
+  r.classList.add('empty');
+}
+function applyMethod() {
+  const method = document.getElementById('arr-method').value;
+  let result, label;
+  switch (method) {
+    case 'map':    result = interactiveArr.map(n => n * 2);      label = 'map(×2)'; break;
+    case 'filter': result = interactiveArr.filter(n => n > 3);   label = 'filter(>3)'; break;
+    case 'reduce': result = interactiveArr.reduce((a,n) => a+n, 0); label = 'reduce(sum)'; break;
+    case 'sort':   result = [...interactiveArr].sort((a,b) => a-b); label = 'sort(asc)'; break;
+  }
+  const el = document.getElementById('arr-result');
+  el.classList.remove('empty');
+  el.textContent =
+    `Input array: [${interactiveArr.join(', ')}]\n` +
+    `.${label} → ${Array.isArray(result) ? '['+result.join(', ')+']' : result}`;
+}
+
+// ─── Playground ──────────────────────────────────────────────────
+function runPlayground() {
+  const code = document.getElementById('playground-code').value;
+  const output = document.getElementById('playground-output');
+  const logs = [];
+  const origLog = console.log;
+  console.log = (...args) => {
+    logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a,null,2) : String(a)).join(' '));
+    origLog(...args);
+  };
+  try {
+    // eslint-disable-next-line no-eval
+    eval(code);
+    setTimeout(() => {
+      console.log = origLog;
+      output.classList.remove('empty');
+      output.textContent = logs.length ? logs.join('\n') : '(no console.log output)';
+    }, 1200);
+  } catch (err) {
+    console.log = origLog;
+    output.classList.remove('empty');
+    output.textContent = '❌ Error: ' + err.message;
+  }
+}
+function clearPlayground() {
+  const o = document.getElementById('playground-output');
+  o.textContent = 'Output cleared.';
+  o.classList.add('empty');
+}
+</script>
+</body>
+</html>
